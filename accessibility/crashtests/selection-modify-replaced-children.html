@@ -1,0 +1,39 @@
+<html>
+<style type="text/css">
+*{border-block-start:solid;}
+*:optional{display:none;}
+</style>
+<script type="text/javascript" charset="utf-8">
+function onDOMNodeInserted() {
+  // called on every newly inserted "baz" node
+  window.getSelection().modify('move', 'forward', 'paragraph');
+  event.srcElement.remove();
+}
+document.addEventListener("DOMNodeInserted", onDOMNodeInserted);
+window.onload = () => {
+  document.execCommand("SelectAll");
+  var selection = window.getSelection();
+  var range = selection.getRangeAt(0);
+  selection.collapseToEnd();
+
+  window.requestIdleCallback(() => {
+    var allElements = document.getElementsByTagName("*");
+    for (var element of allElements) {
+      if (!element.firstElementChild) {
+        // replace every leaf node with "baz"
+        var parent = element.parentNode;
+        parent.replaceChild(document.createTextNode("baz"), element)
+      }
+    }
+  });
+};
+</script>
+<p></p>
+<div>
+<strong></strong>
+<textarea disabled="disabled">
+foo
+</textarea>
+<input value="bar"/>
+<svg>
+<animate>
