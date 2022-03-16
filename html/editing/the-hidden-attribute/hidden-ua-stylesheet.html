@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<link rel=author href="mailto:jarhar@chromium.org">
+<link rel=help href="https://html.spec.whatwg.org/multipage/rendering.html#hiddenCSS">
+<link rel=help href="https://github.com/whatwg/html/pull/7475#issuecomment-1069313217">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<div id=div>hello world</div>
+<embed id=embed>hello world</embed>
+<table id=table>
+  <colgroup id=colgroup>
+    <col id=col></col>
+  </colgroup>
+</table>
+
+<script>
+function testDisplayNone(description) {
+  test(() => {
+    assert_equals(getComputedStyle(div).display, 'none',
+        `${description} should make the div display:none.`);
+    assert_equals(getComputedStyle(div).contentVisibility, 'visible',
+        `${description} should not affect the div's content-visibility property.`);
+  }, description);
+}
+
+function testCVHidden(description) {
+  test(() => {
+    assert_equals(getComputedStyle(div).display, 'block',
+        `${description} should not affect the div's display property.`);
+    assert_equals(getComputedStyle(div).contentVisibility, 'hidden',
+        `${description} should make the div content-visibility:hidden.`);
+  }, description);
+}
+
+function testNormal(description) {
+  test(() => {
+    assert_equals(getComputedStyle(div).display, 'block',
+        `${description} should not affect the div's display property.`);
+    assert_equals(getComputedStyle(div).contentVisibility, 'visible',
+        `${description} should not affect the div's content-visibility property.`);
+  }, description);
+}
+
+function testEmbed(description) {
+  test(() => {
+    assert_equals(getComputedStyle(embed).display, 'inline',
+        `${description} should not affect the embed's display property.`);
+    assert_equals(getComputedStyle(embed).contentVisibility, 'visible',
+        `${description} should not affect the embed's content-visibility property.`);
+    assert_equals(getComputedStyle(embed).width, '0',
+        `${description} should make the embed's width property 0.`);
+    assert_equals(getComputedStyle(embed).height, '0',
+        `${description} should make the embed's height property 0.`);
+  }, description);
+}
+
+test(() => {
+  div.removeAttribute('hidden');
+  testNormal(`div.removeAttribute('hidden')`);
+
+  div.setAttribute('hidden', '');
+  testDisplayNone(`div.setAttribute('hidden', '')`);
+
+  div.setAttribute('hidden', 'asdf');
+  testDisplayNone(`div.setAttribute('hidden', 'asdf')`);
+
+  div.setAttribute('hidden', 'until-found');
+  testCVHidden(`div.setAttribute('hidden', 'until-found')`);
+
+  div.setAttribute('hidden', 'UNTIL-FOUND');
+  testCVHidden(`div.setAttribute('hidden', 'UNTIL-FOUND')`);
+
+  div.setAttribute('hidden', 'UnTiL-FoUnD');
+  testCVHidden(`div.setAttribute('hidden', 'UnTiL-FoUnD')`);
+
+  embed.setAttribute('hidden', '');
+  testEmbed(`embed.setAttribute('hidden', '')`);
+
+  embed.setAttribute('hidden', 'asdf');
+  testEmbed(`embed.setAttribute('hidden', 'asdf')`);
+
+  embed.setAttribute('hidden', 'until-found');
+  testEmbed(`embed.setAttribute('hidden', 'until-found')`);
+});
+</script>
